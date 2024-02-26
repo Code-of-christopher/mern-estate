@@ -8,7 +8,14 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 import { app } from "../firebase";
-import { updateUserStart, updateUserSuccess, updateUserFailure } from '../redux/user/userSlice';
+import {
+  updateUserStart,
+  updateUserSuccess,
+  updateUserFailure,
+  deleteUserStart,
+  deleteUserSuccess,
+  deleteUserFailure
+} from "../redux/user/userSlice";
 import { useDispatch } from "react-redux";
 
 export default function Profile() {
@@ -18,7 +25,7 @@ export default function Profile() {
   const [filePerc, setFilePerc] = useState(0);
   const [fileUploadError, setFileUploadError] = useState(false);
   const [formData, setFormData] = useState({});
-  const [ updateSuccess, setUpdateSuccess ] = useState(false);
+  const [updateSuccess, setUpdateSuccess] = useState(false);
   const dispatch = useDispatch();
 
   //firebase rules
@@ -60,22 +67,22 @@ export default function Profile() {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
     console.log(formData);
-  }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try{
+    try {
       dispatch(updateUserStart());
-      const res = await fetch (`/api/user/update/${currentUser._id}`, {
-        method: 'POST',
+      const res = await fetch(`/api/user/update/${currentUser._id}`, {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
       const data = await res.json();
       console.log(data);
-      if(data.success === false) {
+      if (data.success === false) {
         dispatch(updateUserFailure(data.message));
         return;
       }
@@ -84,7 +91,25 @@ export default function Profile() {
     } catch (error) {
       dispatch(updateUserFailure(error.message));
     }
-  }
+  };
+
+  const handleDeleteUser = async () => {
+    try {
+      dispatch(deleteUserStart(true));
+      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      console.log(data);
+      if (data.success === false) {
+        dispatch(deleteUserFailure(data.message));
+        return;
+      }
+      dispatch(deleteUserSuccess(data));
+    } catch (error) {
+      dispatch(deleteUserFailure(error.message));
+    }
+  };
 
   return (
     <div className="p-3 max-w-lg mx-auto">
@@ -139,16 +164,26 @@ export default function Profile() {
           className="border p-3 rounded-lg"
           onChange={handleChange}
         />
-        <button disabled={loading} className="bg-slate-700 text-white rounded-lg p-3 uppercase hover:opacity-95 disabled:opacity-80">
-          {loading? 'Loading...' : 'Update'}
+        <button
+          disabled={loading}
+          className="bg-slate-700 text-white rounded-lg p-3 uppercase hover:opacity-95 disabled:opacity-80"
+        >
+          {loading ? "Loading..." : "Update"}
         </button>
       </form>
       <div className="flex justify-between mt-5">
-        <span className="text-red-700 cursor-pointer">Delete account</span>
+        <span
+          onClick={handleDeleteUser}
+          className="text-red-700 cursor-pointer"
+        >
+          Delete account
+        </span>
         <span className="text-red-700 cursor-pointer">Sign out</span>
       </div>
-      <p className="text-red-700 mt-5">{error ? error : ''}</p>
-      <p className="text-green-700 mt-5">{updateSuccess ? 'Updated Successfully!' : ''}</p>
+      <p className="text-red-700 mt-5">{error ? error : ""}</p>
+      <p className="text-green-700 mt-5">
+        {updateSuccess ? "Updated Successfully!" : ""}
+      </p>
     </div>
   );
 }
