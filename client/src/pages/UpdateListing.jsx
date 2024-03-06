@@ -47,7 +47,7 @@ export default function CreateListing() {
     };
 
     fetchListing();
-  }, []);
+  }, [params.listingId]);
 
   //firebase rules
   // allow read;
