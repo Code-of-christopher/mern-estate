@@ -141,7 +141,7 @@ export default function Listing() {
                 Contact landlord
               </button>
             )}
-            {contact && <Contact listingProp={listing}/>}
+            {contact && <Contact listingProp={listing} />}
           </div>
         </div>
       )}
