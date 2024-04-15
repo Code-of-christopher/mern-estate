@@ -145,7 +145,7 @@ export default function Profile() {
       }
       setUserListings(data);
     } catch (error) {
-      showListingsError(true);
+      setShowListingsError(true);
     }
   };
 
